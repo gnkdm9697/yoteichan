@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
+import { Footer } from "@/components/ui";
 
 // 日本語最適化フォント
 const notoSansJP = Noto_Sans_JP({
@@ -31,7 +32,10 @@ export default function RootLayout({
         className={`${notoSansJP.variable} ${geistMono.variable} font-sans antialiased text-lg bg-[var(--bg)] text-[var(--text)]`}
         style={{ fontFamily: "var(--font-noto-sans-jp), system-ui, sans-serif" }}
       >
-        {children}
+        <div className="min-h-screen flex flex-col">
+          {children}
+          <Footer />
+        </div>
       </body>
     </html>
   );

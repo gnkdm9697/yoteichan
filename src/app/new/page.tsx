@@ -127,7 +127,7 @@ export default function NewEventPage() {
   const selectedDates = dateOptions.map((opt) => opt.date);
 
   return (
-    <main className="min-h-screen bg-[var(--bg-secondary)] relative">
+    <main className="flex-1 bg-[var(--bg-secondary)] relative">
       {/* テーマトグル */}
       <div className="absolute top-4 right-4">
         <ThemeToggle />

@@ -61,7 +61,7 @@ export default async function EventDetailPage({ params }: PageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--bg-secondary)] py-10 relative">
+    <main className="flex-1 bg-[var(--bg-secondary)] py-10 relative">
       {/* テーマトグル */}
       <div className="absolute top-4 right-4">
         <ThemeToggle />

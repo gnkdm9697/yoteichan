@@ -63,13 +63,16 @@ export function ResponseForm({
   const [errors, setErrors] = useState<{ name?: string; answers?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ローカルストレージから名前を復元（SSR対応）
+  // ローカルストレージから名前を復元（SSR対応、編集モード以外のみ）
   useEffect(() => {
+    // initialNameが指定されている場合は編集モードなので復元しない
+    if (initialName) return;
+
     const savedName = localStorage.getItem(STORAGE_KEY_RESPONDER_NAME);
     if (savedName) {
       setName(savedName);
     }
-  }, []);
+  }, [initialName]);
 
   const handleStatusChange = (dateOptionId: string, status: ResponseStatus) => {
     setAnswers((prev) => ({ ...prev, [dateOptionId]: status }));
