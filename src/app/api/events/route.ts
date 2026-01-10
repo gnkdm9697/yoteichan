@@ -11,6 +11,7 @@ interface CreateEventRequest {
     date: string
     startTime: string | null
     endTime: string | null
+    title?: string | null
   }[]
 }
 
@@ -82,6 +83,7 @@ export async function POST(request: Request) {
       date: option.date,
       start_time: option.startTime || null,
       end_time: option.endTime || null,
+      title: option.title || null,
     }))
 
     const { error: dateOptionsError } = await getSupabase()

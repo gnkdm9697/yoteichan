@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { EventEditSection } from './EventEditSection'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import type { ResponseStatus } from '@/types'
 
 // APIレスポンス型
@@ -8,6 +9,7 @@ interface DateOption {
   date: string
   startTime: string | null
   endTime: string | null
+  title: string | null
 }
 
 interface ResponseData {
@@ -59,8 +61,13 @@ export default async function EventDetailPage({ params }: PageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--bg)] py-8">
-      <div className="max-w-2xl mx-auto px-4">
+    <main className="min-h-screen bg-[var(--bg-secondary)] py-10 relative">
+      {/* テーマトグル */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
+      <div className="max-w-2xl mx-auto px-5">
         <EventEditSection
           eventId={event.publicId}
           event={{

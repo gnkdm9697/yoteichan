@@ -11,12 +11,15 @@ interface DateOptionItem {
   date: string;
   startTime: string | null;
   endTime: string | null;
+  title?: string | null;
 }
 
 interface ResponseFormProps {
   eventId: string;
   dateOptions: DateOptionItem[];
   onSubmitSuccess: () => void;
+  initialName?: string;
+  initialAnswers?: Record<string, ResponseStatus>;
 }
 
 // 曜日の日本語表記
@@ -31,24 +34,28 @@ function formatDate(dateString: string): string {
   return `${month}/${day}(${dayOfWeek})`;
 }
 
-// 時間帯を表示用にフォーマット
-function formatTimeRange(startTime: string | null, endTime: string | null): string {
-  if (!startTime && !endTime) {
+// 時間フォーマット（HH:MM形式、開始時間のみ）
+function formatTime(startTime: string | null): string {
+  if (!startTime) {
     return '終日';
   }
-  if (startTime && endTime) {
-    return `${startTime}〜${endTime}`;
-  }
-  if (startTime) {
-    return `${startTime}〜`;
-  }
-  return `〜${endTime}`;
+  // "19:00:00" → "19:00"
+  const [h, m] = startTime.split(':');
+  return `${h}:${m}`;
 }
 
-export function ResponseForm({ eventId, dateOptions, onSubmitSuccess }: ResponseFormProps) {
-  const [name, setName] = useState('');
-  const [answers, setAnswers] = useState<Record<string, ResponseStatus | null>>(
-    () => Object.fromEntries(dateOptions.map((opt) => [opt.id, null]))
+export function ResponseForm({
+  eventId,
+  dateOptions,
+  onSubmitSuccess,
+  initialName = '',
+  initialAnswers,
+}: ResponseFormProps) {
+  const [name, setName] = useState(initialName);
+  const [answers, setAnswers] = useState<Record<string, ResponseStatus | null>>(() =>
+    Object.fromEntries(
+      dateOptions.map((opt) => [opt.id, initialAnswers?.[opt.id] ?? null])
+    )
   );
   const [errors, setErrors] = useState<{ name?: string; answers?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -136,12 +143,20 @@ export function ResponseForm({ eventId, dateOptions, onSubmitSuccess }: Response
       {/* 日程回答 */}
       <div className="flex flex-col gap-4">
         {dateOptions.map((option) => (
-          <div key={option.id} className="flex flex-col gap-2">
-            <div className="text-sm font-medium text-[var(--text)]">
+          <div
+            key={option.id}
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-2 px-3 rounded-lg odd:bg-[var(--bg-secondary)]"
+          >
+            <div className="text-sm font-medium text-[var(--text)] flex items-center gap-2 flex-wrap">
               <span className="text-base">{formatDate(option.date)}</span>
-              <span className="ml-2 text-[var(--text-secondary)]">
-                {formatTimeRange(option.startTime, option.endTime)}
+              <span className="text-[var(--text-secondary)]">
+                {formatTime(option.startTime)}
               </span>
+              {option.title && (
+                <span className="text-xs text-[var(--primary)] bg-[var(--primary)]/10 px-1.5 py-0.5 rounded">
+                  {option.title}
+                </span>
+              )}
             </div>
             <StatusButton
               status={answers[option.id]}

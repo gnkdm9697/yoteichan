@@ -12,6 +12,7 @@ interface UpdateEventRequest {
     date: string
     startTime?: string | null
     endTime?: string | null
+    title?: string | null
   }[]
 }
 
@@ -38,6 +39,7 @@ interface EventResponse {
     date: string
     startTime: string | null
     endTime: string | null
+    title: string | null
   }[]
   responses: ParticipantAnswers[]
   summary: Record<string, StatusCount>
@@ -67,7 +69,7 @@ export async function GET(
     // 日程候補取得
     const { data: dateOptions, error: dateOptionsError } = await getSupabase()
       .from('date_options')
-      .select('id, date, start_time, end_time')
+      .select('id, date, start_time, end_time, title')
       .eq('event_id', event.id)
       .order('date', { ascending: true })
       .order('start_time', { ascending: true, nullsFirst: true })
@@ -131,6 +133,7 @@ export async function GET(
         date: opt.date,
         startTime: opt.start_time,
         endTime: opt.end_time,
+        title: opt.title,
       })),
       responses,
       summary,
@@ -235,6 +238,7 @@ export async function PUT(
       date: opt.date,
       start_time: opt.startTime || null,
       end_time: opt.endTime || null,
+      title: opt.title || null,
     }))
 
     const { error: insertOptionsError } = await getSupabase()

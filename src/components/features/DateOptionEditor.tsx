@@ -37,7 +37,7 @@ export function DateOptionEditor({
   dateOptions,
   onUpdate,
 }: DateOptionEditorProps) {
-  const [showCalendar, setShowCalendar] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(true);
 
   // 選択中の日付リスト（Calendarに渡す用）
   const selectedDates = dateOptions.map((opt) => opt.date);
@@ -85,9 +85,9 @@ export function DateOptionEditor({
       const updated = dateOptions.map((option) => {
         if (option.date !== targetDate) return option;
         if (isAllDay) {
-          return { ...option, startTime: null, endTime: null };
+          return { ...option, startTime: null };
         } else {
-          return { ...option, startTime: '19:00', endTime: '21:00' };
+          return { ...option, startTime: '19:00' };
         }
       });
       onUpdate(updated);
@@ -96,13 +96,13 @@ export function DateOptionEditor({
   );
 
   /**
-   * 時間の変更
+   * 開始時間の変更
    */
   const handleTimeChange = useCallback(
-    (targetDate: string, field: 'startTime' | 'endTime', value: string) => {
+    (targetDate: string, value: string) => {
       const updated = dateOptions.map((option) => {
         if (option.date !== targetDate) return option;
-        return { ...option, [field]: value };
+        return { ...option, startTime: value };
       });
       onUpdate(updated);
     },
@@ -244,76 +244,30 @@ export function DateOptionEditor({
                   <span className="text-sm text-[var(--text)]">終日</span>
                 </label>
 
-                {/* 時間入力欄（終日でない場合のみ表示） */}
+                {/* 開始時間入力欄（終日でない場合のみ表示） */}
                 {!isAllDay && (
-                  <div
-                    className="
-                      mt-3 pt-3
-                      border-t border-[var(--border)]
-                      flex items-center gap-2
-                    "
-                  >
-                    <div className="flex-1">
-                      <label
-                        htmlFor={`start-${option.date}`}
-                        className="sr-only"
-                      >
-                        開始時間
-                      </label>
-                      <input
-                        id={`start-${option.date}`}
-                        type="time"
-                        value={option.startTime || ''}
-                        onChange={(e) =>
-                          handleTimeChange(
-                            option.date,
-                            'startTime',
-                            e.target.value
-                          )
-                        }
-                        className="
-                          w-full h-11 px-3
-                          rounded-lg
-                          border border-[var(--border)]
-                          bg-[var(--bg)] text-[var(--text)]
-                          text-center text-base
-                          transition-colors duration-150
-                          focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-1
-                        "
-                      />
-                    </div>
-                    <span
-                      className="text-[var(--text-secondary)] font-medium shrink-0"
-                      aria-hidden="true"
+                  <div className="mt-3 pt-3 border-t border-[var(--border)]">
+                    <label
+                      htmlFor={`start-${option.date}`}
+                      className="text-sm text-[var(--text-secondary)] block mb-1"
                     >
-                      〜
-                    </span>
-                    <div className="flex-1">
-                      <label htmlFor={`end-${option.date}`} className="sr-only">
-                        終了時間
-                      </label>
-                      <input
-                        id={`end-${option.date}`}
-                        type="time"
-                        value={option.endTime || ''}
-                        onChange={(e) =>
-                          handleTimeChange(
-                            option.date,
-                            'endTime',
-                            e.target.value
-                          )
-                        }
-                        className="
-                          w-full h-11 px-3
-                          rounded-lg
-                          border border-[var(--border)]
-                          bg-[var(--bg)] text-[var(--text)]
-                          text-center text-base
-                          transition-colors duration-150
-                          focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-1
-                        "
-                      />
-                    </div>
+                      開始時間
+                    </label>
+                    <input
+                      id={`start-${option.date}`}
+                      type="time"
+                      value={option.startTime || ''}
+                      onChange={(e) => handleTimeChange(option.date, e.target.value)}
+                      className="
+                        w-32 h-11 px-3
+                        rounded-lg
+                        border border-[var(--border)]
+                        bg-[var(--bg)] text-[var(--text)]
+                        text-center text-base
+                        transition-colors duration-150
+                        focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-1
+                      "
+                    />
                   </div>
                 )}
               </div>

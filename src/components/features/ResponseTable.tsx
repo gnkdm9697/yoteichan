@@ -1,12 +1,11 @@
 import { ResponseStatus } from '@/types';
-import { ResponseRow } from './ResponseRow';
-import { SummaryRow } from './SummaryRow';
 
 interface DateOptionDisplay {
   id: string;
   date: string;
   startTime: string | null;
   endTime: string | null;
+  title?: string | null;
 }
 
 interface ResponseData {
@@ -24,11 +23,17 @@ interface ResponseTableProps {
   dateOptions: DateOptionDisplay[];
   responses: ResponseData[];
   summary: Record<string, SummaryData>;
+  onNameClick?: (name: string, answers: Record<string, ResponseStatus>) => void;
 }
+
+const statusDisplay: Record<ResponseStatus, { label: string; colorClass: string }> = {
+  ok: { label: '○', colorClass: 'text-[var(--ok)]' },
+  maybe: { label: '△', colorClass: 'text-[var(--maybe)]' },
+  ng: { label: '×', colorClass: 'text-[var(--ng)]' },
+};
 
 /**
  * 日付文字列を短縮形式に変換
- * 例: "2024-01-08" -> "1/8"
  */
 function formatDateShort(dateStr: string): string {
   const date = new Date(dateStr);
@@ -36,8 +41,16 @@ function formatDateShort(dateStr: string): string {
 }
 
 /**
+ * 曜日を取得
+ */
+function getWeekday(dateStr: string): string {
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+  const date = new Date(dateStr);
+  return weekdays[date.getDay()];
+}
+
+/**
  * 時間範囲をフォーマット
- * 例: "09:00", "12:00" -> "9:00-12:00"
  */
 function formatTimeRange(startTime: string | null, endTime: string | null): string | null {
   if (!startTime) return null;
@@ -67,21 +80,20 @@ function findBestDates(summary: Record<string, SummaryData>): string[] {
 }
 
 /**
- * 回答一覧テーブルコンポーネント
- * 参加者全員の回答を一覧表示し、集計結果を表示
+ * 回答一覧テーブルコンポーネント（転置版）
+ * 行=日付、列=参加者 の構造
  */
-export function ResponseTable({ dateOptions, responses, summary }: ResponseTableProps) {
-  const dateOptionIds = dateOptions.map((opt) => opt.id);
+export function ResponseTable({ dateOptions, responses, summary, onNameClick }: ResponseTableProps) {
   const bestDateIds = findBestDates(summary);
   const totalResponses = responses.length;
 
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg)] overflow-hidden shadow-sm">
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] overflow-hidden shadow-[var(--shadow-md)]">
       {/* ヘッダー */}
-      <div className="px-4 py-3 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
-        <h2 className="text-base font-semibold text-[var(--text)]">
+      <div className="px-5 py-4 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
+        <h2 className="text-lg font-semibold text-[var(--text)]">
           みんなの回答
-          <span className="ml-2 text-sm font-normal text-[var(--text-secondary)]">
+          <span className="ml-2 text-base font-normal text-[var(--text-secondary)]">
             ({totalResponses}人)
           </span>
         </h2>
@@ -89,57 +101,113 @@ export function ResponseTable({ dateOptions, responses, summary }: ResponseTable
 
       {/* テーブル本体 */}
       {totalResponses === 0 ? (
-        <div className="px-4 py-8 text-center text-[var(--text-secondary)]">
+        <div className="px-5 py-10 text-center text-lg text-[var(--text-secondary)]">
           まだ回答がありません
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-max border-collapse">
+            {/* ヘッダー: 日付 | 参加者名... | 集計 */}
             <thead>
               <tr className="border-b border-[var(--border)]">
-                <th className="sticky left-0 z-10 bg-[var(--bg)] px-3 py-2.5 text-left text-sm font-semibold text-[var(--text)]">
-                  名前
+                <th className="sticky left-0 z-10 bg-[var(--bg-elevated)] px-4 py-3 text-left text-base font-semibold text-[var(--text)]">
+                  日程
                 </th>
-                {dateOptions.map((option) => {
-                  const isBestDate = bestDateIds.includes(option.id);
-                  const timeRange = formatTimeRange(option.startTime, option.endTime);
+                {responses.map((response) => (
+                  <th
+                    key={response.name}
+                    className="px-4 py-3 text-center text-base font-semibold text-[var(--text)] cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors"
+                    onClick={() => onNameClick?.(response.name, response.answers)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        onNameClick?.(response.name, response.answers);
+                      }
+                    }}
+                  >
+                    {response.name}
+                  </th>
+                ))}
+                <th className="px-4 py-3 text-center text-base font-semibold text-[var(--text)] bg-[var(--bg-secondary)]">
+                  集計
+                </th>
+              </tr>
+            </thead>
+            {/* ボディ: 各日付の行 */}
+            <tbody>
+              {dateOptions.map((option) => {
+                const isBestDate = bestDateIds.includes(option.id);
+                const timeRange = formatTimeRange(option.startTime, option.endTime);
+                const counts = summary[option.id] || { ok: 0, maybe: 0, ng: 0 };
 
-                  return (
-                    <th
-                      key={option.id}
-                      className={`
-                        px-3 py-2.5 text-center text-sm font-semibold
-                        transition-colors duration-200
-                        ${isBestDate ? 'bg-[var(--ok)]/10 text-[var(--ok)]' : 'text-[var(--text)]'}
-                      `.trim().replace(/\s+/g, ' ')}
-                    >
-                      <div className="flex flex-col items-center gap-0.5">
-                        <span>{formatDateShort(option.date)}</span>
+                return (
+                  <tr
+                    key={option.id}
+                    className={`
+                      border-b border-[var(--border)] transition-colors duration-150
+                      ${isBestDate ? 'bg-[var(--ok)]/5' : 'hover:bg-[var(--bg-secondary)]/50'}
+                    `.trim().replace(/\s+/g, ' ')}
+                  >
+                    {/* 日付セル */}
+                    <td className={`
+                      sticky left-0 z-10 px-4 py-3 whitespace-nowrap
+                      ${isBestDate ? 'bg-[var(--ok)]/10' : 'bg-[var(--bg-elevated)]'}
+                    `.trim().replace(/\s+/g, ' ')}>
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-base font-medium ${isBestDate ? 'text-[var(--ok)]' : 'text-[var(--text)]'}`}>
+                            {formatDateShort(option.date)}
+                            <span className="text-sm ml-1">({getWeekday(option.date)})</span>
+                          </span>
+                          {option.title && (
+                            <span className="text-xs text-[var(--primary)] bg-[var(--primary)]/10 px-1.5 py-0.5 rounded">
+                              {option.title}
+                            </span>
+                          )}
+                        </div>
                         {timeRange && (
-                          <span className="text-xs font-normal text-[var(--text-secondary)]">
+                          <span className="text-sm text-[var(--text-secondary)]">
                             {timeRange}
                           </span>
                         )}
                       </div>
-                    </th>
-                  );
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              {responses.map((response) => (
-                <ResponseRow
-                  key={response.name}
-                  name={response.name}
-                  answers={response.answers}
-                  dateOptionIds={dateOptionIds}
-                />
-              ))}
-              <SummaryRow
-                summary={summary}
-                dateOptionIds={dateOptionIds}
-                bestDateIds={bestDateIds}
-              />
+                    </td>
+
+                    {/* 各参加者の回答セル */}
+                    {responses.map((response) => {
+                      const status = response.answers[option.id];
+                      const display = status ? statusDisplay[status] : null;
+
+                      return (
+                        <td key={response.name} className="px-4 py-3 text-center">
+                          {display ? (
+                            <span className={`text-2xl font-semibold ${display.colorClass}`}>
+                              {display.label}
+                            </span>
+                          ) : (
+                            <span className="text-lg text-[var(--text-muted)]">-</span>
+                          )}
+                        </td>
+                      );
+                    })}
+
+                    {/* 集計セル */}
+                    <td className={`
+                      px-4 py-3 text-center text-sm font-medium bg-[var(--bg-secondary)]
+                      ${isBestDate ? 'bg-[var(--ok)]/10' : ''}
+                    `.trim().replace(/\s+/g, ' ')}>
+                      <div className="flex items-center justify-center gap-1">
+                        <span className="text-[var(--ok)] font-semibold">{counts.ok}</span>
+                        <span className="text-[var(--text-muted)]">/</span>
+                        <span className="text-[var(--maybe)] font-semibold">{counts.maybe}</span>
+                        <span className="text-[var(--text-muted)]">/</span>
+                        <span className="text-[var(--ng)] font-semibold">{counts.ng}</span>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

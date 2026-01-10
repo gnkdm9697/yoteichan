@@ -2,13 +2,14 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
-import { Button, Input, Textarea } from '@/components/ui';
+import { Button, Input, Textarea, ThemeToggle } from '@/components/ui';
 import { Calendar, TimeSlotPicker, ShareModal } from '@/components/features';
 
 interface DateOption {
   date: string;
   startTime: string | null;
   endTime: string | null;
+  title?: string | null;
 }
 
 interface FormErrors {
@@ -43,7 +44,7 @@ export default function NewEventPage() {
         return prev.filter((opt) => opt.date !== dateStr);
       }
       // 新規追加（19:00-21:00をデフォルト）
-      return [...prev, { date: dateStr, startTime: '19:00', endTime: '21:00' }].sort(
+      return [...prev, { date: dateStr, startTime: '19:00', endTime: null }].sort(
         (a, b) => a.date.localeCompare(b.date)
       );
     });
@@ -126,14 +127,20 @@ export default function NewEventPage() {
   const selectedDates = dateOptions.map((opt) => opt.date);
 
   return (
-    <main className="min-h-screen bg-[var(--bg-secondary)]">
-      <div className="max-w-lg mx-auto px-4 py-6">
+    <main className="min-h-screen bg-[var(--bg-secondary)] relative">
+      {/* テーマトグル */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+
+      <div className="max-w-lg mx-auto px-5 py-8">
         {/* 戻るリンク */}
         <Link
           href="/"
           className="
-            inline-flex items-center gap-1.5
-            text-sm text-[var(--text-secondary)]
+            inline-flex items-center gap-2
+            min-h-[44px] px-1
+            text-base text-[var(--text-secondary)]
             hover:text-[var(--text)]
             transition-colors duration-150
             mb-6
@@ -143,7 +150,7 @@ export default function NewEventPage() {
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="w-4 h-4"
+            className="w-5 h-5"
             aria-hidden="true"
           >
             <path
@@ -156,12 +163,12 @@ export default function NewEventPage() {
         </Link>
 
         {/* ページタイトル */}
-        <h1 className="text-2xl font-bold text-[var(--text)] mb-6">
+        <h1 className="text-3xl font-bold text-[var(--text)] mb-8">
           イベントを作成
         </h1>
 
         {/* フォーム */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
           {/* イベント名 */}
           <Input
             label="イベント名"
@@ -188,15 +195,15 @@ export default function NewEventPage() {
               }}
               error={errors.passphrase}
             />
-            <p className="mt-1.5 text-xs text-[var(--text-secondary)]">
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
               ※編集時に必要です
             </p>
           </div>
 
           {/* 候補日選択 */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-[var(--text)]">
+              <label className="text-base font-medium text-[var(--text)]">
                 候補日を選択
                 <span className="text-[var(--ng)] ml-1" aria-hidden="true">
                   *
@@ -205,7 +212,7 @@ export default function NewEventPage() {
             </div>
 
             {/* カレンダー */}
-            <div className="bg-[var(--bg)] border border-[var(--border)] rounded-xl p-4">
+            <div className="bg-[var(--bg-elevated)] border border-[var(--border)] rounded-2xl p-5 shadow-[var(--shadow-sm)]">
               <Calendar
                 selectedDates={selectedDates}
                 onDateSelect={handleDateSelect}
@@ -214,7 +221,7 @@ export default function NewEventPage() {
 
             {/* 候補日エラー */}
             {errors.dates && (
-              <p className="text-sm text-[var(--ng)]" role="alert">
+              <p className="text-base text-[var(--ng)]" role="alert">
                 {errors.dates}
               </p>
             )}

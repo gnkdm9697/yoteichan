@@ -54,6 +54,7 @@ export interface Database {
           date: string
           start_time: string | null
           end_time: string | null
+          title: string | null
           created_at: string
         }
         Insert: {
@@ -62,6 +63,7 @@ export interface Database {
           date: string
           start_time?: string | null
           end_time?: string | null
+          title?: string | null
           created_at?: string
         }
         Update: {
@@ -70,6 +72,7 @@ export interface Database {
           date?: string
           start_time?: string | null
           end_time?: string | null
+          title?: string | null
           created_at?: string
         }
         Relationships: [

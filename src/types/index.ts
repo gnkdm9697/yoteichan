@@ -24,6 +24,7 @@ export interface DateOption {
   date: Date
   startTime: string | null
   endTime: string | null
+  title: string | null
   createdAt: Date
 }
 
@@ -51,6 +52,7 @@ export interface CreateDateOptionInput {
   date: Date
   startTime?: string
   endTime?: string
+  title?: string
 }
 
 // 回答作成用入力型

@@ -14,6 +14,7 @@ interface DateOption {
   date: string;
   startTime: string | null;
   endTime: string | null;
+  title?: string | null;
 }
 
 interface ResponseData {
@@ -49,24 +50,25 @@ function formatDate(dateStr: string): string {
   return `${month}/${day}(${weekday})`;
 }
 
-// 時間帯フォーマット
-function formatTimeRange(startTime: string | null, endTime: string | null): string {
-  if (!startTime && !endTime) {
+// 時間フォーマット（HH:MM形式、開始時間のみ）
+function formatTime(startTime: string | null): string {
+  if (!startTime) {
     return '終日';
   }
-  if (startTime && endTime) {
-    return `${startTime}〜${endTime}`;
-  }
-  if (startTime) {
-    return `${startTime}〜`;
-  }
-  return `〜${endTime}`;
+  // "19:00:00" → "19:00"
+  const [h, m] = startTime.split(':');
+  return `${h}:${m}`;
 }
 
 /**
  * イベント編集セクション
  * 編集モード時はEditForm、通常時はイベント詳細をレンダー
  */
+interface EditingResponse {
+  name: string;
+  answers: Record<string, ResponseStatus>;
+}
+
 export function EventEditSection({
   eventId,
   event,
@@ -75,6 +77,7 @@ export function EventEditSection({
   const [isEditMode, setIsEditMode] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [passphrase, setPassphrase] = useState('');
+  const [editingResponse, setEditingResponse] = useState<EditingResponse | null>(null);
 
   // 編集ボタンクリック → モーダル表示
   const handleEditClick = useCallback(() => {
@@ -112,13 +115,23 @@ export function EventEditSection({
     router.push('/');
   }, [router]);
 
+  // 名前クリック → 編集開始
+  const handleNameClick = useCallback((name: string, answers: Record<string, ResponseStatus>) => {
+    setEditingResponse({ name, answers });
+  }, []);
+
+  // 編集完了
+  const handleEditComplete = useCallback(() => {
+    setEditingResponse(null);
+  }, []);
+
   // 編集モード時はEditFormのみ表示
   if (isEditMode) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-[var(--border)] p-6">
-        <div className="flex items-center gap-2 mb-6 pb-4 border-b border-[var(--border)]">
-          <span className="text-xl" aria-hidden="true">🔓</span>
-          <h2 className="text-lg font-semibold text-[var(--text)]">
+      <div className="bg-[var(--bg-elevated)] rounded-2xl shadow-[var(--shadow-md)] border border-[var(--border)] p-6 sm:p-8">
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--border)]">
+          <span className="text-2xl" aria-hidden="true">🔓</span>
+          <h2 className="text-xl font-semibold text-[var(--text)]">
             編集モード
           </h2>
         </div>
@@ -147,21 +160,21 @@ export function EventEditSection({
   return (
     <>
       {/* ヘッダー部分 */}
-      <div className="bg-white rounded-lg shadow-sm border border-[var(--border)] p-6 mb-4">
+      <div className="bg-[var(--bg-elevated)] rounded-2xl shadow-[var(--shadow-md)] border border-[var(--border)] p-6 sm:p-8 mb-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-[var(--text)] flex items-center gap-2">
+            <h1 className="text-3xl font-bold text-[var(--text)] flex items-center gap-3">
               <span aria-hidden="true">📅</span>
               {event.title}
             </h1>
             {event.location && (
-              <p className="mt-2 text-[var(--text-secondary)] flex items-center gap-2">
+              <p className="mt-3 text-lg text-[var(--text-secondary)] flex items-center gap-2">
                 <span aria-hidden="true">📍</span>
                 {event.location}
               </p>
             )}
             {event.description && (
-              <p className="mt-3 text-[var(--text)] whitespace-pre-wrap">
+              <p className="mt-4 text-lg text-[var(--text)] whitespace-pre-wrap">
                 {event.description}
               </p>
             )}
@@ -173,31 +186,38 @@ export function EventEditSection({
       </div>
 
       {/* 候補日リスト */}
-      <div className="bg-white rounded-lg shadow-sm border border-[var(--border)] p-6 mb-4">
-        <h2 className="text-lg font-semibold text-[var(--text)] mb-4">
+      <div className="bg-[var(--bg-elevated)] rounded-2xl shadow-[var(--shadow-md)] border border-[var(--border)] p-6 sm:p-8 mb-6">
+        <h2 className="text-xl font-semibold text-[var(--text)] mb-5">
           候補日
         </h2>
-        <ul className="space-y-2">
+        <ul className="space-y-3">
           {event.dateOptions.map((option) => (
             <li
               key={option.id}
-              className="flex items-center gap-2 text-[var(--text)]"
+              className="flex items-center gap-3 text-lg text-[var(--text)]"
             >
               <span className="text-[var(--text-secondary)]">・</span>
               <span className="font-medium">{formatDate(option.date)}</span>
               <span className="text-[var(--text-secondary)]">
-                {formatTimeRange(option.startTime, option.endTime)}
+                {formatTime(option.startTime)}
               </span>
+              {option.title && (
+                <span className="text-sm text-[var(--primary)] bg-[var(--primary)]/10 px-2 py-0.5 rounded">
+                  {option.title}
+                </span>
+              )}
             </li>
           ))}
         </ul>
       </div>
 
       {/* 回答フォーム */}
-      <div className="mb-4">
+      <div className="mb-6">
         <EventResponseSection
           eventId={eventId}
           dateOptions={event.dateOptions}
+          editingResponse={editingResponse}
+          onEditComplete={handleEditComplete}
         />
       </div>
 
@@ -206,6 +226,7 @@ export function EventEditSection({
         dateOptions={event.dateOptions}
         responses={event.responses}
         summary={event.summary}
+        onNameClick={handleNameClick}
       />
 
       {/* 合言葉モーダル */}
