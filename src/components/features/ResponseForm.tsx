@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { StatusButton } from '@/components/features/StatusButton';
@@ -21,6 +21,9 @@ interface ResponseFormProps {
   initialName?: string;
   initialAnswers?: Record<string, ResponseStatus>;
 }
+
+// ローカルストレージのキー
+const STORAGE_KEY_RESPONDER_NAME = 'yoteichan_responder_name';
 
 // 曜日の日本語表記
 const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
@@ -59,6 +62,14 @@ export function ResponseForm({
   );
   const [errors, setErrors] = useState<{ name?: string; answers?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ローカルストレージから名前を復元（SSR対応）
+  useEffect(() => {
+    const savedName = localStorage.getItem(STORAGE_KEY_RESPONDER_NAME);
+    if (savedName) {
+      setName(savedName);
+    }
+  }, []);
 
   const handleStatusChange = (dateOptionId: string, status: ResponseStatus) => {
     setAnswers((prev) => ({ ...prev, [dateOptionId]: status }));
@@ -113,6 +124,9 @@ export function ResponseForm({
       if (!res.ok) {
         throw new Error('送信に失敗しました');
       }
+
+      // 送信成功時に名前を保存
+      localStorage.setItem(STORAGE_KEY_RESPONDER_NAME, name.trim());
 
       onSubmitSuccess();
     } catch (error) {
