@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 
 // 曜日の日本語表記
 const WEEKDAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'] as const;
@@ -50,6 +50,21 @@ export function TimeSlotPicker({
 }: TimeSlotPickerProps) {
   // 展開中の日付を管理
   const [expandedDate, setExpandedDate] = useState<string | null>(null);
+
+  // 前回のdateOptionsを保持（新規追加検出用）
+  const prevDateOptionsRef = useRef<DateOption[]>([]);
+
+  // 新しい日付が追加されたら自動的に展開
+  useEffect(() => {
+    const prevDates = new Set(prevDateOptionsRef.current.map(opt => opt.date));
+    const newlyAddedDate = dateOptions.find(opt => !prevDates.has(opt.date));
+
+    if (newlyAddedDate) {
+      setExpandedDate(newlyAddedDate.date);
+    }
+
+    prevDateOptionsRef.current = dateOptions;
+  }, [dateOptions]);
 
   /**
    * 終日チェックボックスの切り替え
