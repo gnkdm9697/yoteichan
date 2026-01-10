@@ -52,11 +52,11 @@ export function DateOptionEditor({
         // 既存の日付なら削除
         onUpdate(dateOptions.filter((opt) => opt.date !== date));
       } else {
-        // 新しい日付を追加（日付順にソート）
+        // 新しい日付を追加（日付順にソート、デフォルト時間付き）
         const newOption: DateOption = {
           date,
-          startTime: null,
-          endTime: null,
+          startTime: '19:00',
+          endTime: '21:00',
         };
         const updated = [...dateOptions, newOption].sort((a, b) =>
           a.date.localeCompare(b.date)
