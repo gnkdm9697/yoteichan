@@ -4,7 +4,14 @@
       "Bash(git add:*)",
       "Bash(cd /Users/genki/Library/Mobile\\\\ Documents/com~apple~CloudDocs/dev/yoteichan && npm run build:*)",
       "Bash(pgrep:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Phase 3 編集・仕上げ実装\n\n- 合言葉検証API（POST /api/events/[publicId]/verify）\n- PassphraseModal（合言葉入力モーダル）\n- DateOptionEditor, EditForm（編集機能）\n- ConfirmDialog（削除確認）\n- Toast, Loading, PageLoading（UI/UX改善）\n- README.md 追加\n\nclaude code : 20260111-commit\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Phase 3 編集・仕上げ実装\n\n- 合言葉検証API（POST /api/events/[publicId]/verify）\n- PassphraseModal（合言葉入力モーダル）\n- DateOptionEditor, EditForm（編集機能）\n- ConfirmDialog（削除確認）\n- Toast, Loading, PageLoading（UI/UX改善）\n- README.md 追加\n\nclaude code : 20260111-commit\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(npm run build:*)",
+      "Bash(git push)",
+      "mcp__plugin_supabase-toolkit_supabase__apply_migration",
+      "Bash(npm run lint)",
+      "Bash(npx tsc:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)"
     ]
   }
 }

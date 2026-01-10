@@ -11,7 +11,7 @@ interface SummaryRowProps {
 export function SummaryRow({ summary, dateOptionIds, bestDateIds }: SummaryRowProps) {
   return (
     <tr className="bg-[var(--bg-secondary)] border-t-2 border-[var(--border)]">
-      <td className="sticky left-0 z-10 bg-[var(--bg-secondary)] px-3 py-2.5 text-sm font-semibold text-[var(--text)]">
+      <td className="sticky left-0 z-10 bg-[var(--bg-secondary)] px-4 py-3 text-base font-semibold text-[var(--text)]">
         集計
       </td>
       {dateOptionIds.map((dateOptionId) => {
@@ -22,17 +22,17 @@ export function SummaryRow({ summary, dateOptionIds, bestDateIds }: SummaryRowPr
           <td
             key={dateOptionId}
             className={`
-              px-3 py-2.5 text-center text-xs font-medium
+              px-4 py-3 text-center text-sm font-medium
               transition-colors duration-200
               ${isBestDate ? 'bg-[var(--ok)]/10' : ''}
             `.trim().replace(/\s+/g, ' ')}
           >
-            <div className="flex items-center justify-center gap-0.5">
-              <span className="text-[var(--ok)]">{counts.ok}</span>
-              <span className="text-[var(--text-secondary)]">/</span>
-              <span className="text-[var(--maybe)]">{counts.maybe}</span>
-              <span className="text-[var(--text-secondary)]">/</span>
-              <span className="text-[var(--ng)]">{counts.ng}</span>
+            <div className="flex items-center justify-center gap-1">
+              <span className="text-[var(--ok)] font-semibold">{counts.ok}</span>
+              <span className="text-[var(--text-muted)]">/</span>
+              <span className="text-[var(--maybe)] font-semibold">{counts.maybe}</span>
+              <span className="text-[var(--text-muted)]">/</span>
+              <span className="text-[var(--ng)] font-semibold">{counts.ng}</span>
             </div>
           </td>
         );

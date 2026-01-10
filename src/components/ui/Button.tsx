@@ -14,17 +14,18 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] active:bg-[var(--primary-hover)]',
+    'bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] shadow-[var(--shadow-sm)]',
   secondary:
-    'bg-[var(--bg)] text-[var(--text)] border border-[var(--border)] hover:bg-[var(--bg-secondary)] active:bg-[var(--bg-secondary)]',
+    'bg-[var(--bg-elevated)] text-[var(--text)] border border-[var(--border)] hover:bg-[var(--bg-secondary)] shadow-[var(--shadow-sm)]',
   danger:
-    'bg-[var(--ng)] text-white hover:bg-[var(--ng-hover)] active:bg-[var(--ng-hover)]',
+    'bg-[var(--ng)] text-white hover:bg-[var(--ng-hover)] shadow-[var(--shadow-sm)]',
 };
 
+// タッチターゲット: sm=44px, md=52px, lg=56px
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: 'h-9 px-3 text-sm',
-  md: 'h-11 px-4 text-base',
-  lg: 'h-12 px-6 text-lg',
+  sm: 'min-h-[44px] px-4 text-base',
+  md: 'min-h-[52px] px-5 text-lg',
+  lg: 'min-h-[56px] px-6 text-xl',
 };
 
 export function Button({
@@ -42,10 +43,11 @@ export function Button({
     <button
       className={`
         inline-flex items-center justify-center gap-2
-        rounded-lg font-medium
-        transition-colors duration-150
-        focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2
-        disabled:opacity-50 disabled:cursor-not-allowed
+        rounded-xl font-medium
+        transition-all duration-150
+        active:scale-[0.98]
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2
+        disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
         ${variantStyles[variant]}
         ${sizeStyles[size]}
         ${className}

@@ -1,25 +1,126 @@
 @import "tailwindcss";
 
-/* カラーパレット */
+/* ===========================================
+   カラーパレット - ライトモード
+   高コントラスト・温かみのある配色
+   =========================================== */
 :root {
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --ok: #22c55e;
-  --ok-hover: #16a34a;
-  --maybe: #f59e0b;
-  --maybe-hover: #d97706;
-  --ng: #ef4444;
-  --ng-hover: #dc2626;
-  --bg: #ffffff;
-  --bg-secondary: #f8fafc;
-  --text: #1e293b;
-  --text-secondary: #64748b;
-  --border: #e2e8f0;
-  --border-focus: #6366f1;
+  /* プライマリ - 深いインディゴ */
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #e0e7ff;
+
+  /* ステータス - OK（深い緑） */
+  --ok: #059669;
+  --ok-hover: #047857;
+  --ok-light: #d1fae5;
+
+  /* ステータス - Maybe（深いオレンジ） */
+  --maybe: #d97706;
+  --maybe-hover: #b45309;
+  --maybe-light: #fef3c7;
+
+  /* ステータス - NG（深い赤） */
+  --ng: #dc2626;
+  --ng-hover: #b91c1c;
+  --ng-light: #fee2e2;
+
+  /* 背景 - 温かみのある白 */
+  --bg: #fffbf7;
+  --bg-secondary: #faf5f0;
+  --bg-elevated: #ffffff;
+
+  /* テキスト - 高コントラスト */
+  --text: #1a1a1a;
+  --text-secondary: #525252;
+  --text-muted: #737373;
+
+  /* ボーダー */
+  --border: #d4d4d4;
+  --border-focus: #4f46e5;
+
+  /* シャドウ */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 
   /* アニメーション用イージング */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ===========================================
+   カラーパレット - ダークモード
+   目に優しい暗い配色
+   =========================================== */
+[data-theme="dark"] {
+  /* プライマリ - 明るいインディゴ */
+  --primary: #818cf8;
+  --primary-hover: #a5b4fc;
+  --primary-light: #312e81;
+
+  /* ステータス - OK */
+  --ok: #34d399;
+  --ok-hover: #6ee7b7;
+  --ok-light: #064e3b;
+
+  /* ステータス - Maybe */
+  --maybe: #fbbf24;
+  --maybe-hover: #fcd34d;
+  --maybe-light: #78350f;
+
+  /* ステータス - NG */
+  --ng: #f87171;
+  --ng-hover: #fca5a5;
+  --ng-light: #7f1d1d;
+
+  /* 背景 - 純黒ではない暗い色 */
+  --bg: #0f0f0f;
+  --bg-secondary: #1a1a1a;
+  --bg-elevated: #262626;
+
+  /* テキスト */
+  --text: #f5f5f5;
+  --text-secondary: #a3a3a3;
+  --text-muted: #737373;
+
+  /* ボーダー */
+  --border: #404040;
+  --border-focus: #818cf8;
+
+  /* シャドウ（ダークモードでは控えめに） */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+}
+
+/* システム設定に基づくダークモード自動適用 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --primary: #818cf8;
+    --primary-hover: #a5b4fc;
+    --primary-light: #312e81;
+    --ok: #34d399;
+    --ok-hover: #6ee7b7;
+    --ok-light: #064e3b;
+    --maybe: #fbbf24;
+    --maybe-hover: #fcd34d;
+    --maybe-light: #78350f;
+    --ng: #f87171;
+    --ng-hover: #fca5a5;
+    --ng-light: #7f1d1d;
+    --bg: #0f0f0f;
+    --bg-secondary: #1a1a1a;
+    --bg-elevated: #262626;
+    --text: #f5f5f5;
+    --text-secondary: #a3a3a3;
+    --text-muted: #737373;
+    --border: #404040;
+    --border-focus: #818cf8;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  }
 }
 
 /* フォーカスリングのベーススタイル */

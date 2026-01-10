@@ -48,24 +48,24 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
       />
 
       {/* モーダル本体 */}
-      <div className="relative z-10 w-full max-w-md bg-[var(--bg)] rounded-xl shadow-xl animate-modal-in">
+      <div className="relative z-10 w-full max-w-md bg-[var(--bg-elevated)] rounded-2xl shadow-[var(--shadow-lg)] animate-modal-in">
         {/* ヘッダー */}
         {title && (
-          <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border)]">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--border)]">
             <h2
               id="modal-title"
-              className="text-lg font-semibold text-[var(--text)]"
+              className="text-xl font-semibold text-[var(--text)]"
             >
               {title}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 -mr-1.5 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-1 transition-colors duration-150"
+              className="w-12 h-12 min-w-[48px] min-h-[48px] -mr-2 flex items-center justify-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text)] active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2 transition-all duration-150"
               aria-label="閉じる"
             >
               <svg
-                className="w-5 h-5"
+                className="w-6 h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -83,7 +83,7 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
         )}
 
         {/* コンテンツ */}
-        <div className="p-5">{children}</div>
+        <div className="p-6">{children}</div>
       </div>
     </div>
   );

@@ -144,18 +144,19 @@ export function Calendar({
           onClick={goToPrevMonth}
           className="
             flex items-center justify-center
-            w-11 h-11 min-w-[44px] min-h-[44px]
+            w-12 h-12 min-w-[48px] min-h-[48px]
             rounded-full
             text-[var(--text-secondary)]
             hover:bg-[var(--bg-secondary)]
-            focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2
-            transition-colors duration-150
+            active:scale-95
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2
+            transition-all duration-150
           "
           aria-label="前月"
         >
           <svg
-            width="20"
-            height="20"
+            width="24"
+            height="24"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -168,7 +169,7 @@ export function Calendar({
           </svg>
         </button>
 
-        <h2 className="text-lg font-semibold text-[var(--text)]">
+        <h2 className="text-xl font-semibold text-[var(--text)]">
           {currentYear}年{currentMonth + 1}月
         </h2>
 
@@ -177,18 +178,19 @@ export function Calendar({
           onClick={goToNextMonth}
           className="
             flex items-center justify-center
-            w-11 h-11 min-w-[44px] min-h-[44px]
+            w-12 h-12 min-w-[48px] min-h-[48px]
             rounded-full
             text-[var(--text-secondary)]
             hover:bg-[var(--bg-secondary)]
-            focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2
-            transition-colors duration-150
+            active:scale-95
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2
+            transition-all duration-150
           "
           aria-label="次月"
         >
           <svg
-            width="20"
-            height="20"
+            width="24"
+            height="24"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -209,8 +211,8 @@ export function Calendar({
             key={weekday}
             className={`
               flex items-center justify-center
-              h-8
-              text-xs font-medium
+              h-10
+              text-sm font-medium
               ${index === 0 ? 'text-[var(--ng)]' : index === 6 ? 'text-[var(--primary)]' : 'text-[var(--text-secondary)]'}
             `}
           >
@@ -232,7 +234,7 @@ export function Calendar({
                 onClick={() => !isDateDisabled(day) && handleDateClick(day)}
               />
             ) : (
-              <div className="w-11 h-11" aria-hidden="true" />
+              <div className="w-12 h-12" aria-hidden="true" />
             )}
           </div>
         ))}

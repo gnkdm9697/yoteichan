@@ -14,11 +14,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     const errorId = `${textareaId}-error`;
 
     return (
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         {label && (
           <label
             htmlFor={textareaId}
-            className="text-sm font-medium text-[var(--text)]"
+            className="text-base font-medium text-[var(--text)]"
           >
             {label}
             {required && (
@@ -33,16 +33,16 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={textareaId}
           rows={rows}
           className={`
-            px-3 py-2.5
-            w-full rounded-lg
+            px-4 py-3 text-lg
+            w-full rounded-xl
             border border-[var(--border)]
-            bg-[var(--bg)] text-[var(--text)]
-            placeholder:text-[var(--text-secondary)]
-            transition-colors duration-150
+            bg-[var(--bg-elevated)] text-[var(--text)]
+            placeholder:text-[var(--text-muted)]
+            transition-all duration-150
             resize-y
-            focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-1
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2
             disabled:opacity-50 disabled:cursor-not-allowed
-            ${error ? 'border-[var(--ng)] focus:ring-[var(--ng)]' : ''}
+            ${error ? 'border-[var(--ng)] focus-visible:ring-[var(--ng)]' : ''}
             ${className}
           `.trim().replace(/\s+/g, ' ')}
           aria-invalid={!!error}
@@ -51,7 +51,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           {...props}
         />
         {error && (
-          <p id={errorId} className="text-sm text-[var(--ng)]" role="alert">
+          <p id={errorId} className="text-base text-[var(--ng)]" role="alert">
             {error}
           </p>
         )}

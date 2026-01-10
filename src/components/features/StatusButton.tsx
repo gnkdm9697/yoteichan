@@ -10,18 +10,18 @@ interface StatusButtonProps {
 const statusConfig: Record<StatusValue, { label: string; color: string; activeColor: string }> = {
   ok: {
     label: '○',
-    color: 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--ok)] hover:text-[var(--ok)]',
-    activeColor: 'bg-[var(--ok)] text-white border-[var(--ok)]',
+    color: 'bg-[var(--ok-light)] border-[var(--ok)]/30 text-[var(--ok)] hover:border-[var(--ok)] hover:bg-[var(--ok)]/20',
+    activeColor: 'bg-[var(--ok)] text-white border-[var(--ok)] shadow-md',
   },
   maybe: {
     label: '△',
-    color: 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--maybe)] hover:text-[var(--maybe)]',
-    activeColor: 'bg-[var(--maybe)] text-white border-[var(--maybe)]',
+    color: 'bg-[var(--maybe-light)] border-[var(--maybe)]/30 text-[var(--maybe)] hover:border-[var(--maybe)] hover:bg-[var(--maybe)]/20',
+    activeColor: 'bg-[var(--maybe)] text-white border-[var(--maybe)] shadow-md',
   },
   ng: {
     label: '×',
-    color: 'border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--ng)] hover:text-[var(--ng)]',
-    activeColor: 'bg-[var(--ng)] text-white border-[var(--ng)]',
+    color: 'bg-[var(--ng-light)] border-[var(--ng)]/30 text-[var(--ng)] hover:border-[var(--ng)] hover:bg-[var(--ng)]/20',
+    activeColor: 'bg-[var(--ng)] text-white border-[var(--ng)] shadow-md',
   },
 };
 
@@ -29,12 +29,10 @@ const statusOrder: StatusValue[] = ['ok', 'maybe', 'ng'];
 
 export function StatusButton({ status, onSelect }: StatusButtonProps) {
   return (
-    <div className="inline-flex" role="group" aria-label="回答選択">
-      {statusOrder.map((value, index) => {
+    <div className="inline-flex gap-2" role="group" aria-label="回答選択">
+      {statusOrder.map((value) => {
         const config = statusConfig[value];
         const isActive = status === value;
-        const isFirst = index === 0;
-        const isLast = index === statusOrder.length - 1;
 
         return (
           <button
@@ -43,12 +41,11 @@ export function StatusButton({ status, onSelect }: StatusButtonProps) {
             onClick={() => onSelect(value)}
             aria-pressed={isActive}
             className={`
-              w-11 h-11 text-xl font-medium
-              border-2 transition-all duration-150
-              focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-1
-              ${isFirst ? 'rounded-l-lg' : ''}
-              ${isLast ? 'rounded-r-lg' : ''}
-              ${!isFirst ? '-ml-0.5' : ''}
+              w-14 h-14 text-3xl font-medium
+              border-2 rounded-xl
+              transition-all duration-150
+              active:scale-95
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2
               ${isActive ? config.activeColor : config.color}
             `.trim().replace(/\s+/g, ' ')}
           >

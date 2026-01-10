@@ -17,23 +17,24 @@ export function CalendarDay({
 }: CalendarDayProps) {
   const baseStyles = `
     flex items-center justify-center
-    w-11 h-11 min-w-[44px] min-h-[44px]
+    w-12 h-12 min-w-[48px] min-h-[48px]
     rounded-full
-    text-sm font-medium
+    text-base font-medium
     transition-all duration-150
     select-none
+    active:scale-95
   `;
 
   const stateStyles = isDisabled
-    ? 'text-[var(--text-secondary)] opacity-40 cursor-not-allowed'
+    ? 'text-[var(--text-muted)] opacity-40 cursor-not-allowed active:scale-100'
     : isSelected
-      ? 'bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)]'
+      ? 'bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] shadow-md'
       : isToday
-        ? 'bg-[var(--bg-secondary)] text-[var(--primary)] font-bold ring-2 ring-[var(--primary)] ring-inset hover:bg-[var(--border)]'
+        ? 'bg-[var(--primary-light)] text-[var(--primary)] font-bold ring-2 ring-[var(--primary)] ring-inset hover:bg-[var(--primary)]/20'
         : 'text-[var(--text)] hover:bg-[var(--bg-secondary)]';
 
   const focusStyles = !isDisabled
-    ? 'focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2'
+    ? 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2'
     : '';
 
   return (

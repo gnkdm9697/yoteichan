@@ -57,14 +57,14 @@ export function Toast({ message, type, isVisible, onClose }: ToastProps) {
         role="alert"
         aria-live="polite"
         className={`
-          flex items-center gap-3 px-4 py-3
-          rounded-lg shadow-lg
+          flex items-center gap-3 px-5 py-4
+          rounded-xl shadow-[var(--shadow-lg)]
           ${bg}
           ${isExiting ? 'animate-toast-out' : 'animate-toast-in'}
         `.trim().replace(/\s+/g, ' ')}
       >
         <svg
-          className="w-5 h-5 shrink-0"
+          className="w-6 h-6 shrink-0"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -73,15 +73,15 @@ export function Toast({ message, type, isVisible, onClose }: ToastProps) {
         >
           <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
         </svg>
-        <span className="text-sm font-medium">{message}</span>
+        <span className="text-base font-medium">{message}</span>
         <button
           type="button"
           onClick={handleClose}
-          className="ml-2 p-1 rounded hover:bg-white/20 transition-colors"
+          className="ml-2 p-2 -mr-1 rounded-lg hover:bg-white/20 active:scale-95 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="閉じる"
         >
           <svg
-            className="w-4 h-4"
+            className="w-5 h-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

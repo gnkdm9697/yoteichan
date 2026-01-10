@@ -28,7 +28,7 @@ const statusDisplay: Record<ResponseStatus, { label: string; colorClass: string 
 export function ResponseRow({ name, answers, dateOptionIds }: ResponseRowProps) {
   return (
     <tr className="border-b border-[var(--border)] hover:bg-[var(--bg-secondary)]/50 transition-colors duration-150">
-      <td className="sticky left-0 z-10 bg-[var(--bg)] px-3 py-2.5 text-sm font-medium text-[var(--text)] whitespace-nowrap">
+      <td className="sticky left-0 z-10 bg-[var(--bg-elevated)] px-4 py-3 text-base font-medium text-[var(--text)] whitespace-nowrap">
         {name}
       </td>
       {dateOptionIds.map((dateOptionId) => {
@@ -38,14 +38,14 @@ export function ResponseRow({ name, answers, dateOptionIds }: ResponseRowProps) 
         return (
           <td
             key={dateOptionId}
-            className="px-3 py-2.5 text-center"
+            className="px-4 py-3 text-center"
           >
             {display ? (
-              <span className={`text-lg font-semibold ${display.colorClass}`}>
+              <span className={`text-2xl font-semibold ${display.colorClass}`}>
                 {display.label}
               </span>
             ) : (
-              <span className="text-[var(--text-secondary)]">-</span>
+              <span className="text-lg text-[var(--text-muted)]">-</span>
             )}
           </td>
         );
