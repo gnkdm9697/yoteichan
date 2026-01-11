@@ -6,6 +6,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { DateOptionEditor } from './DateOptionEditor';
 
 interface DateOption {
+  id?: string; // 既存の候補日はIDを持つ、新規はundefined
   date: string;
   startTime: string | null;
   endTime: string | null;

@@ -9,6 +9,7 @@ interface UpdateEventRequest {
   location?: string
   description?: string
   dateOptions: {
+    id?: string // 既存の候補日はIDを持つ
     date: string
     startTime?: string | null
     endTime?: string | null
@@ -227,39 +228,84 @@ export async function PUT(
       )
     }
 
-    // 既存の日程候補を削除
-    const { error: deleteOptionsError } = await getSupabase()
+    // 既存の日程候補IDを取得
+    const { data: existingOptions, error: fetchOptionsError } = await getSupabase()
       .from('date_options')
-      .delete()
+      .select('id')
       .eq('event_id', event.id)
 
-    if (deleteOptionsError) {
-      console.error('Date options delete failed:', deleteOptionsError)
+    if (fetchOptionsError) {
+      console.error('Date options fetch failed:', fetchOptionsError)
       return NextResponse.json(
-        { error: '日程候補の更新に失敗しました' },
+        { error: '日程候補の取得に失敗しました' },
         { status: 500 }
       )
     }
 
-    // 新しい日程候補を作成
-    const dateOptionsToInsert = body.dateOptions.map((opt) => ({
-      event_id: event.id,
-      date: opt.date,
-      start_time: opt.startTime || null,
-      end_time: opt.endTime || null,
-      title: opt.title || null,
-    }))
+    const existingIds = new Set(existingOptions?.map((o) => o.id) || [])
+    const newIds = new Set(body.dateOptions.filter((o) => o.id).map((o) => o.id))
 
-    const { error: insertOptionsError } = await getSupabase()
-      .from('date_options')
-      .insert(dateOptionsToInsert)
+    // 削除する候補日（既存にあるが新しいリストにない）
+    const toDelete = [...existingIds].filter((id) => !newIds.has(id))
+    if (toDelete.length > 0) {
+      const { error: deleteError } = await getSupabase()
+        .from('date_options')
+        .delete()
+        .in('id', toDelete)
 
-    if (insertOptionsError) {
-      console.error('Date options insert failed:', insertOptionsError)
-      return NextResponse.json(
-        { error: '日程候補の作成に失敗しました' },
-        { status: 500 }
-      )
+      if (deleteError) {
+        console.error('Date options delete failed:', deleteError)
+        return NextResponse.json(
+          { error: '日程候補の削除に失敗しました' },
+          { status: 500 }
+        )
+      }
+    }
+
+    // 更新する候補日（既存にあり、新しいリストにもある）
+    const toUpdate = body.dateOptions.filter((o) => o.id && existingIds.has(o.id))
+    for (const opt of toUpdate) {
+      const { error: updateOptError } = await getSupabase()
+        .from('date_options')
+        .update({
+          date: opt.date,
+          start_time: opt.startTime || null,
+          end_time: opt.endTime || null,
+          title: opt.title || null,
+        })
+        .eq('id', opt.id!)
+
+      if (updateOptError) {
+        console.error('Date option update failed:', updateOptError)
+        return NextResponse.json(
+          { error: '日程候補の更新に失敗しました' },
+          { status: 500 }
+        )
+      }
+    }
+
+    // 新規追加する候補日（IDなし）
+    const toInsert = body.dateOptions.filter((o) => !o.id)
+    if (toInsert.length > 0) {
+      const dateOptionsToInsert = toInsert.map((opt) => ({
+        event_id: event.id,
+        date: opt.date,
+        start_time: opt.startTime || null,
+        end_time: opt.endTime || null,
+        title: opt.title || null,
+      }))
+
+      const { error: insertError } = await getSupabase()
+        .from('date_options')
+        .insert(dateOptionsToInsert)
+
+      if (insertError) {
+        console.error('Date options insert failed:', insertError)
+        return NextResponse.json(
+          { error: '日程候補の作成に失敗しました' },
+          { status: 500 }
+        )
+      }
     }
 
     return NextResponse.json({ success: true })

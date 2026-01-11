@@ -8,6 +8,7 @@ import { Button } from '@/components/ui';
 const WEEKDAY_NAMES = ['日', '月', '火', '水', '木', '金', '土'] as const;
 
 interface DateOption {
+  id?: string; // 既存の候補日はIDを持つ
   date: string; // YYYY-MM-DD
   startTime: string | null;
   endTime: string | null;
