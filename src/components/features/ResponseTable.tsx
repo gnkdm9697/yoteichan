@@ -195,7 +195,7 @@ export function ResponseTable({ dateOptions, responses, summary, onNameClick }: 
                                 {display.label}
                               </span>
                               {notes && (
-                                <span className="text-xs text-[var(--text-secondary)] max-w-[80px] truncate" title={notes}>
+                                <span className="text-xs text-[var(--text-secondary)] break-words">
                                   {notes}
                                 </span>
                               )}
