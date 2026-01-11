@@ -149,6 +149,7 @@ export function EventEditSection({
             location: event.location,
             description: event.description,
             dateOptions: event.dateOptions.map((opt) => ({
+              id: opt.id,
               date: opt.date,
               startTime: opt.startTime,
               endTime: opt.endTime,
