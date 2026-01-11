@@ -14,9 +14,15 @@ interface DateOptionItem {
   title?: string | null;
 }
 
+// 回答データ（ステータスと備考）
+interface AnswerData {
+  status: ResponseStatus;
+  notes: string | null;
+}
+
 interface EditingResponse {
   name: string;
-  answers: Record<string, ResponseStatus>;
+  answers: Record<string, AnswerData>;
 }
 
 interface EventResponseSectionProps {

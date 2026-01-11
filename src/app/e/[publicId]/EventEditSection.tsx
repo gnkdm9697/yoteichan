@@ -17,9 +17,15 @@ interface DateOption {
   title?: string | null;
 }
 
+// 回答データ（ステータスと備考）
+interface AnswerData {
+  status: ResponseStatus;
+  notes: string | null;
+}
+
 interface ResponseData {
   name: string;
-  answers: Record<string, ResponseStatus>;
+  answers: Record<string, AnswerData>;
 }
 
 interface SummaryData {
@@ -66,7 +72,7 @@ function formatTime(startTime: string | null): string {
  */
 interface EditingResponse {
   name: string;
-  answers: Record<string, ResponseStatus>;
+  answers: Record<string, AnswerData>;
 }
 
 export function EventEditSection({
@@ -116,7 +122,7 @@ export function EventEditSection({
   }, [router]);
 
   // 名前クリック → 編集開始
-  const handleNameClick = useCallback((name: string, answers: Record<string, ResponseStatus>) => {
+  const handleNameClick = useCallback((name: string, answers: Record<string, AnswerData>) => {
     setEditingResponse({ name, answers });
   }, []);
 

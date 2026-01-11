@@ -92,6 +92,7 @@ export interface Database {
           date_option_id: string
           name: string
           status: string
+          notes: string | null
           created_at: string
           updated_at: string
         }
@@ -101,6 +102,7 @@ export interface Database {
           date_option_id: string
           name: string
           status: string
+          notes?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -110,6 +112,7 @@ export interface Database {
           date_option_id?: string
           name?: string
           status?: string
+          notes?: string | null
           created_at?: string
           updated_at?: string
         }

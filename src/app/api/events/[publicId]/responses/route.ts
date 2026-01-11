@@ -2,9 +2,14 @@ import { NextResponse } from 'next/server'
 import { getSupabase } from '@/lib/supabase'
 
 // リクエストボディの型
+interface AnswerWithNotes {
+  status: 'ok' | 'maybe' | 'ng'
+  notes?: string | null
+}
+
 interface CreateResponseRequest {
   name: string
-  answers: Record<string, 'ok' | 'maybe' | 'ng'>
+  answers: Record<string, 'ok' | 'maybe' | 'ng' | AnswerWithNotes>
 }
 
 // バリデーション
@@ -19,7 +24,8 @@ function validateRequest(body: CreateResponseRequest): string | null {
     return '回答は1つ以上必要です'
   }
   const validStatuses = ['ok', 'maybe', 'ng']
-  for (const status of Object.values(body.answers)) {
+  for (const answer of Object.values(body.answers)) {
+    const status = typeof answer === 'string' ? answer : answer.status
     if (!validStatuses.includes(status)) {
       return '無効な回答ステータスです'
     }
@@ -74,12 +80,17 @@ export async function POST(
 
     // 新しい回答を挿入
     const responsesToInsert = Object.entries(body.answers).map(
-      ([dateOptionId, status]) => ({
-        event_id: event.id,
-        date_option_id: dateOptionId,
-        name,
-        status,
-      })
+      ([dateOptionId, answer]) => {
+        const status = typeof answer === 'string' ? answer : answer.status
+        const notes = typeof answer === 'string' ? null : (answer.notes || null)
+        return {
+          event_id: event.id,
+          date_option_id: dateOptionId,
+          name,
+          status,
+          notes,
+        }
+      }
     )
 
     const { error: insertError } = await getSupabase()

@@ -8,9 +8,15 @@ interface DateOptionDisplay {
   title?: string | null;
 }
 
+// 回答データ（ステータスと備考）
+interface AnswerData {
+  status: ResponseStatus;
+  notes: string | null;
+}
+
 interface ResponseData {
   name: string;
-  answers: Record<string, ResponseStatus>;
+  answers: Record<string, AnswerData>;
 }
 
 interface SummaryData {
@@ -23,7 +29,7 @@ interface ResponseTableProps {
   dateOptions: DateOptionDisplay[];
   responses: ResponseData[];
   summary: Record<string, SummaryData>;
-  onNameClick?: (name: string, answers: Record<string, ResponseStatus>) => void;
+  onNameClick?: (name: string, answers: Record<string, AnswerData>) => void;
 }
 
 const statusDisplay: Record<ResponseStatus, { label: string; colorClass: string }> = {
@@ -176,15 +182,24 @@ export function ResponseTable({ dateOptions, responses, summary, onNameClick }: 
 
                     {/* 各参加者の回答セル */}
                     {responses.map((response) => {
-                      const status = response.answers[option.id];
+                      const answer = response.answers[option.id];
+                      const status = answer?.status;
+                      const notes = answer?.notes;
                       const display = status ? statusDisplay[status] : null;
 
                       return (
                         <td key={response.name} className="px-4 py-3 text-center">
                           {display ? (
-                            <span className={`text-2xl font-semibold ${display.colorClass}`}>
-                              {display.label}
-                            </span>
+                            <div className="flex flex-col items-center gap-0.5">
+                              <span className={`text-2xl font-semibold ${display.colorClass}`}>
+                                {display.label}
+                              </span>
+                              {notes && (
+                                <span className="text-xs text-[var(--text-secondary)] max-w-[80px] truncate" title={notes}>
+                                  {notes}
+                                </span>
+                              )}
+                            </div>
                           ) : (
                             <span className="text-lg text-[var(--text-muted)]">-</span>
                           )}

@@ -14,12 +14,18 @@ interface DateOptionItem {
   title?: string | null;
 }
 
+// 回答データ（ステータスと備考）
+interface AnswerData {
+  status: ResponseStatus;
+  notes: string | null;
+}
+
 interface ResponseFormProps {
   eventId: string;
   dateOptions: DateOptionItem[];
   onSubmitSuccess: () => void;
   initialName?: string;
-  initialAnswers?: Record<string, ResponseStatus>;
+  initialAnswers?: Record<string, AnswerData>;
 }
 
 // ローカルストレージのキー
@@ -55,9 +61,15 @@ export function ResponseForm({
   initialAnswers,
 }: ResponseFormProps) {
   const [name, setName] = useState(initialName);
-  const [answers, setAnswers] = useState<Record<string, ResponseStatus | null>>(() =>
+  const [answers, setAnswers] = useState<Record<string, { status: ResponseStatus | null; notes: string }>>(() =>
     Object.fromEntries(
-      dateOptions.map((opt) => [opt.id, initialAnswers?.[opt.id] ?? null])
+      dateOptions.map((opt) => [
+        opt.id,
+        {
+          status: initialAnswers?.[opt.id]?.status ?? null,
+          notes: initialAnswers?.[opt.id]?.notes ?? '',
+        },
+      ])
     )
   );
   const [errors, setErrors] = useState<{ name?: string; answers?: string }>({});
@@ -75,11 +87,21 @@ export function ResponseForm({
   }, [initialName]);
 
   const handleStatusChange = (dateOptionId: string, status: ResponseStatus) => {
-    setAnswers((prev) => ({ ...prev, [dateOptionId]: status }));
+    setAnswers((prev) => ({
+      ...prev,
+      [dateOptionId]: { ...prev[dateOptionId], status },
+    }));
     // 回答エラーをクリア
     if (errors.answers) {
       setErrors((prev) => ({ ...prev, answers: undefined }));
     }
+  };
+
+  const handleNotesChange = (dateOptionId: string, notes: string) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [dateOptionId]: { ...prev[dateOptionId], notes },
+    }));
   };
 
   const validate = (): boolean => {
@@ -89,7 +111,7 @@ export function ResponseForm({
       newErrors.name = '名前を入力してください';
     }
 
-    const unanswered = dateOptions.filter((opt) => answers[opt.id] === null);
+    const unanswered = dateOptions.filter((opt) => answers[opt.id]?.status === null);
     if (unanswered.length > 0) {
       newErrors.answers = 'すべての日程に回答してください';
     }
@@ -108,10 +130,14 @@ export function ResponseForm({
     setIsSubmitting(true);
 
     try {
-      // APIが期待する形式: { name, answers: Record<string, 'ok' | 'maybe' | 'ng'> }
-      const answersRecord: Record<string, ResponseStatus> = {};
+      // APIが期待する形式: { name, answers: Record<string, { status, notes }> }
+      const answersRecord: Record<string, { status: ResponseStatus; notes: string | null }> = {};
       for (const opt of dateOptions) {
-        answersRecord[opt.id] = answers[opt.id] as ResponseStatus;
+        const answer = answers[opt.id];
+        answersRecord[opt.id] = {
+          status: answer.status as ResponseStatus,
+          notes: answer.notes.trim() || null,
+        };
       }
       const payload = {
         name: name.trim(),
@@ -162,22 +188,32 @@ export function ResponseForm({
         {dateOptions.map((option) => (
           <div
             key={option.id}
-            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-2 px-3 rounded-lg odd:bg-[var(--bg-secondary)]"
+            className="flex flex-col gap-2 py-2 px-3 rounded-lg odd:bg-[var(--bg-secondary)]"
           >
-            <div className="text-sm font-medium text-[var(--text)] flex items-center gap-2 flex-wrap">
-              <span className="text-base">{formatDate(option.date)}</span>
-              <span className="text-[var(--text-secondary)]">
-                {formatTime(option.startTime)}
-              </span>
-              {option.title && (
-                <span className="text-xs text-[var(--primary)] bg-[var(--primary)]/10 px-1.5 py-0.5 rounded">
-                  {option.title}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="text-sm font-medium text-[var(--text)] flex items-center gap-2 flex-wrap">
+                <span className="text-base">{formatDate(option.date)}</span>
+                <span className="text-[var(--text-secondary)]">
+                  {formatTime(option.startTime)}
                 </span>
-              )}
+                {option.title && (
+                  <span className="text-xs text-[var(--primary)] bg-[var(--primary)]/10 px-1.5 py-0.5 rounded">
+                    {option.title}
+                  </span>
+                )}
+              </div>
+              <StatusButton
+                status={answers[option.id]?.status}
+                onSelect={(status) => handleStatusChange(option.id, status)}
+              />
             </div>
-            <StatusButton
-              status={answers[option.id]}
-              onSelect={(status) => handleStatusChange(option.id, status)}
+            <input
+              type="text"
+              value={answers[option.id]?.notes ?? ''}
+              onChange={(e) => handleNotesChange(option.id, e.target.value)}
+              placeholder="備考（例：遅れます）"
+              maxLength={100}
+              className="w-full px-2 py-1 text-sm border border-[var(--border)] rounded bg-[var(--bg)] text-[var(--text)] placeholder:text-[var(--text-secondary)]"
             />
           </div>
         ))}

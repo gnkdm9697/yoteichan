@@ -21,10 +21,16 @@ interface DeleteEventRequest {
   passphrase: string
 }
 
+// 回答データ（ステータスと備考）
+interface AnswerData {
+  status: ResponseStatus
+  notes: string | null
+}
+
 // 参加者の回答
 interface ParticipantAnswers {
   name: string
-  answers: Record<string, ResponseStatus>
+  answers: Record<string, AnswerData>
 }
 
 // APIレスポンス型
@@ -85,7 +91,7 @@ export async function GET(
     // 回答データ取得
     const { data: rawResponses, error: responsesError } = await getSupabase()
       .from('responses')
-      .select('name, date_option_id, status')
+      .select('name, date_option_id, status, notes')
       .eq('event_id', event.id)
       .order('name', { ascending: true })
 
@@ -98,12 +104,15 @@ export async function GET(
     }
 
     // 参加者ごとにグループ化
-    const participantMap = new Map<string, Record<string, ResponseStatus>>()
+    const participantMap = new Map<string, Record<string, AnswerData>>()
     for (const r of rawResponses || []) {
       if (!participantMap.has(r.name)) {
         participantMap.set(r.name, {})
       }
-      participantMap.get(r.name)![r.date_option_id] = r.status as ResponseStatus
+      participantMap.get(r.name)![r.date_option_id] = {
+        status: r.status as ResponseStatus,
+        notes: r.notes,
+      }
     }
     const responses: ParticipantAnswers[] = Array.from(participantMap.entries()).map(
       ([name, answers]) => ({ name, answers })
