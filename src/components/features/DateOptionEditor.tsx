@@ -33,6 +33,7 @@ function formatDateShort(dateString: string): string {
 /**
  * 候補日編集コンポーネント
  * TimeSlotPickerの機能 + Calendarからの日付追加機能
+ * 同じ日付を複数持てるため、インデックスベースで識別
  */
 export function DateOptionEditor({
   dateOptions,
@@ -44,47 +45,41 @@ export function DateOptionEditor({
   const selectedDates = dateOptions.map((opt) => opt.date);
 
   /**
-   * 日付の追加/削除（Calendarからの選択）
+   * 日付の追加（Calendarからの選択）- 常に追加のみ
    */
   const handleDateSelect = useCallback(
     (date: string) => {
-      const existing = dateOptions.find((opt) => opt.date === date);
-      if (existing) {
-        // 既存の日付なら削除
-        onUpdate(dateOptions.filter((opt) => opt.date !== date));
-      } else {
-        // 新しい日付を追加（日付順にソート、デフォルト時間付き）
-        const newOption: DateOption = {
-          date,
-          startTime: '19:00',
-          endTime: '21:00',
-        };
-        const updated = [...dateOptions, newOption].sort((a, b) =>
-          a.date.localeCompare(b.date)
-        );
-        onUpdate(updated);
-      }
+      // 常に新規追加（同じ日付でも複数追加可能）
+      const newOption: DateOption = {
+        date,
+        startTime: '19:00',
+        endTime: '21:00',
+      };
+      const updated = [...dateOptions, newOption].sort((a, b) =>
+        a.date.localeCompare(b.date)
+      );
+      onUpdate(updated);
     },
     [dateOptions, onUpdate]
   );
 
   /**
-   * 候補日を削除
+   * 候補日を削除（インデックスベース）
    */
-  const handleRemoveDate = useCallback(
-    (targetDate: string) => {
-      onUpdate(dateOptions.filter((opt) => opt.date !== targetDate));
+  const handleRemoveDateByIndex = useCallback(
+    (targetIndex: number) => {
+      onUpdate(dateOptions.filter((_, i) => i !== targetIndex));
     },
     [dateOptions, onUpdate]
   );
 
   /**
-   * 終日チェックボックスの切り替え
+   * 終日チェックボックスの切り替え（インデックスベース）
    */
   const handleAllDayToggle = useCallback(
-    (targetDate: string, isAllDay: boolean) => {
-      const updated = dateOptions.map((option) => {
-        if (option.date !== targetDate) return option;
+    (targetIndex: number, isAllDay: boolean) => {
+      const updated = dateOptions.map((option, i) => {
+        if (i !== targetIndex) return option;
         if (isAllDay) {
           return { ...option, startTime: null };
         } else {
@@ -97,12 +92,12 @@ export function DateOptionEditor({
   );
 
   /**
-   * 開始時間の変更
+   * 開始時間の変更（インデックスベース）
    */
   const handleTimeChange = useCallback(
-    (targetDate: string, value: string) => {
-      const updated = dateOptions.map((option) => {
-        if (option.date !== targetDate) return option;
+    (targetIndex: number, value: string) => {
+      const updated = dateOptions.map((option, i) => {
+        if (i !== targetIndex) return option;
         return { ...option, startTime: value };
       });
       onUpdate(updated);
@@ -139,7 +134,7 @@ export function DateOptionEditor({
             onDateSelect={handleDateSelect}
           />
           <p className="text-xs text-[var(--text-secondary)] text-center mt-3">
-            日付をクリックして追加・削除
+            日付をクリックして追加
           </p>
         </div>
       )}
@@ -154,13 +149,13 @@ export function DateOptionEditor({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {dateOptions.map((option) => {
+          {dateOptions.map((option, index) => {
             const isAllDay =
               option.startTime === null && option.endTime === null;
 
             return (
               <div
-                key={option.date}
+                key={index}
                 className="
                   relative
                   border border-[var(--border)] rounded-xl
@@ -176,7 +171,7 @@ export function DateOptionEditor({
                   </span>
                   <button
                     type="button"
-                    onClick={() => handleRemoveDate(option.date)}
+                    onClick={() => handleRemoveDateByIndex(index)}
                     className="
                       w-8 h-8
                       flex items-center justify-center
@@ -207,7 +202,7 @@ export function DateOptionEditor({
                       type="checkbox"
                       checked={isAllDay}
                       onChange={(e) =>
-                        handleAllDayToggle(option.date, e.target.checked)
+                        handleAllDayToggle(index, e.target.checked)
                       }
                       className="
                         peer
@@ -249,16 +244,16 @@ export function DateOptionEditor({
                 {!isAllDay && (
                   <div className="mt-3 pt-3 border-t border-[var(--border)]">
                     <label
-                      htmlFor={`start-${option.date}`}
+                      htmlFor={`start-${index}`}
                       className="text-sm text-[var(--text-secondary)] block mb-1"
                     >
                       開始時間
                     </label>
                     <input
-                      id={`start-${option.date}`}
+                      id={`start-${index}`}
                       type="time"
                       value={option.startTime || ''}
-                      onChange={(e) => handleTimeChange(option.date, e.target.value)}
+                      onChange={(e) => handleTimeChange(index, e.target.value)}
                       className="
                         w-32 h-11 px-3
                         rounded-lg

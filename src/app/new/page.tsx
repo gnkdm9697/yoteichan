@@ -35,15 +35,10 @@ export default function NewEventPage() {
     shareUrl: string;
   } | null>(null);
 
-  // カレンダーから日付を選択/解除
+  // カレンダーから日付を選択（追加のみ、削除はTimeSlotPickerから）
   const handleDateSelect = useCallback((dateStr: string) => {
     setDateOptions((prev) => {
-      const exists = prev.find((opt) => opt.date === dateStr);
-      if (exists) {
-        // 既に選択済みなら削除
-        return prev.filter((opt) => opt.date !== dateStr);
-      }
-      // 新規追加（19:00-21:00をデフォルト）
+      // 常に新規追加（同じ日付でも複数追加可能）
       return [...prev, { date: dateStr, startTime: '19:00', endTime: null }].sort(
         (a, b) => a.date.localeCompare(b.date)
       );
@@ -57,9 +52,9 @@ export default function NewEventPage() {
     setDateOptions(updated);
   }, []);
 
-  // 日付の削除
-  const handleRemoveDate = useCallback((date: string) => {
-    setDateOptions((prev) => prev.filter((opt) => opt.date !== date));
+  // 日付の削除（インデックスベース）
+  const handleRemoveDateByIndex = useCallback((index: number) => {
+    setDateOptions((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
   // バリデーション
@@ -230,7 +225,7 @@ export default function NewEventPage() {
             <TimeSlotPicker
               dateOptions={dateOptions}
               onUpdate={handleDateOptionsUpdate}
-              onRemoveDate={handleRemoveDate}
+              onRemoveDateByIndex={handleRemoveDateByIndex}
             />
           </div>
 

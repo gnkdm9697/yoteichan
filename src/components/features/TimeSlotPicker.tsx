@@ -15,7 +15,7 @@ interface DateOption {
 interface TimeSlotPickerProps {
   dateOptions: DateOption[];
   onUpdate: (dateOptions: DateOption[]) => void;
-  onRemoveDate: (date: string) => void;
+  onRemoveDateByIndex: (index: number) => void;
 }
 
 /**
@@ -42,37 +42,35 @@ function formatTimeRange(startTime: string | null, endTime: string | null): stri
 /**
  * 時間帯選択コンポーネント
  * 選択した日付に対して終日/時間指定を設定できる
+ * 同じ日付を複数持てるため、インデックスベースで識別
  */
 export function TimeSlotPicker({
   dateOptions,
   onUpdate,
-  onRemoveDate,
+  onRemoveDateByIndex,
 }: TimeSlotPickerProps) {
-  // 展開中の日付を管理
-  const [expandedDate, setExpandedDate] = useState<string | null>(null);
+  // 展開中のインデックスを管理
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
-  // 前回のdateOptionsを保持（新規追加検出用）
-  const prevDateOptionsRef = useRef<DateOption[]>([]);
+  // 前回の件数を保持（新規追加検出用）
+  const prevLengthRef = useRef<number>(0);
 
-  // 新しい日付が追加されたら自動的に展開
+  // 新しい候補が追加されたら自動的に展開
   useEffect(() => {
-    const prevDates = new Set(prevDateOptionsRef.current.map(opt => opt.date));
-    const newlyAddedDate = dateOptions.find(opt => !prevDates.has(opt.date));
-
-    if (newlyAddedDate) {
-      setExpandedDate(newlyAddedDate.date);
+    if (dateOptions.length > prevLengthRef.current) {
+      // 新規追加された → 最後の要素を展開
+      setExpandedIndex(dateOptions.length - 1);
     }
-
-    prevDateOptionsRef.current = dateOptions;
-  }, [dateOptions]);
+    prevLengthRef.current = dateOptions.length;
+  }, [dateOptions.length]);
 
   /**
-   * 終日チェックボックスの切り替え
+   * 終日チェックボックスの切り替え（インデックスベース）
    */
   const handleAllDayToggle = useCallback(
-    (targetDate: string, isAllDay: boolean) => {
-      const updated = dateOptions.map((option) => {
-        if (option.date !== targetDate) return option;
+    (targetIndex: number, isAllDay: boolean) => {
+      const updated = dateOptions.map((option, i) => {
+        if (i !== targetIndex) return option;
 
         if (isAllDay) {
           return { ...option, startTime: null };
@@ -86,12 +84,12 @@ export function TimeSlotPicker({
   );
 
   /**
-   * 時間の変更
+   * 時間の変更（インデックスベース）
    */
   const handleTimeChange = useCallback(
-    (targetDate: string, field: 'startTime' | 'endTime', value: string) => {
-      const updated = dateOptions.map((option) => {
-        if (option.date !== targetDate) return option;
+    (targetIndex: number, field: 'startTime' | 'endTime', value: string) => {
+      const updated = dateOptions.map((option, i) => {
+        if (i !== targetIndex) return option;
         return { ...option, [field]: value };
       });
       onUpdate(updated);
@@ -100,12 +98,12 @@ export function TimeSlotPicker({
   );
 
   /**
-   * タイトルの変更
+   * タイトルの変更（インデックスベース）
    */
   const handleTitleChange = useCallback(
-    (targetDate: string, title: string) => {
-      const updated = dateOptions.map((option) => {
-        if (option.date !== targetDate) return option;
+    (targetIndex: number, title: string) => {
+      const updated = dateOptions.map((option, i) => {
+        if (i !== targetIndex) return option;
         return { ...option, title: title || null };
       });
       onUpdate(updated);
@@ -117,7 +115,7 @@ export function TimeSlotPicker({
     return (
       <div className="text-center py-8 text-[var(--text-secondary)]">
         <p>候補日が選択されていません</p>
-        <p className="text-sm mt-1">カレンダーから日付を選択してください</p>
+        <p className="text-sm mt-1">カレンダーから日付をクリックして追加してください</p>
       </div>
     );
   }
@@ -135,11 +133,11 @@ export function TimeSlotPicker({
       <div className="border border-[var(--border)] rounded-xl overflow-hidden bg-[var(--bg)]">
         {dateOptions.map((option, index) => {
           const isAllDay = option.startTime === null && option.endTime === null;
-          const isExpanded = expandedDate === option.date;
+          const isExpanded = expandedIndex === index;
 
           return (
             <div
-              key={option.date}
+              key={index}
               className={`
                 ${index % 2 === 0 ? 'bg-[var(--bg)]' : 'bg-[var(--bg-secondary)]'}
                 ${index !== dateOptions.length - 1 ? 'border-b border-[var(--border)]' : ''}
@@ -150,7 +148,7 @@ export function TimeSlotPicker({
                 {/* 日付と時間 */}
                 <button
                   type="button"
-                  onClick={() => setExpandedDate(isExpanded ? null : option.date)}
+                  onClick={() => setExpandedIndex(isExpanded ? null : index)}
                   className="flex-1 flex items-center gap-2 text-left hover:opacity-70 transition-opacity"
                 >
                   <span className="font-medium text-[var(--text)]">
@@ -177,7 +175,7 @@ export function TimeSlotPicker({
                 {/* 削除ボタン */}
                 <button
                   type="button"
-                  onClick={() => onRemoveDate(option.date)}
+                  onClick={() => onRemoveDateByIndex(index)}
                   className="
                     w-8 h-8
                     flex items-center justify-center
@@ -206,14 +204,14 @@ export function TimeSlotPicker({
                 <div className="px-4 pb-4 pt-1 space-y-3">
                   {/* タイトル入力 */}
                   <div>
-                    <label htmlFor={`title-${option.date}`} className="text-xs text-[var(--text-secondary)] block mb-1">
+                    <label htmlFor={`title-${index}`} className="text-xs text-[var(--text-secondary)] block mb-1">
                       タイトル（任意）
                     </label>
                     <input
-                      id={`title-${option.date}`}
+                      id={`title-${index}`}
                       type="text"
                       value={option.title || ''}
-                      onChange={(e) => handleTitleChange(option.date, e.target.value)}
+                      onChange={(e) => handleTitleChange(index, e.target.value)}
                       placeholder="Day1、昼の部など"
                       className="
                         w-full h-10 px-3
@@ -235,7 +233,7 @@ export function TimeSlotPicker({
                         type="checkbox"
                         checked={isAllDay}
                         onChange={(e) =>
-                          handleAllDayToggle(option.date, e.target.checked)
+                          handleAllDayToggle(index, e.target.checked)
                         }
                         className="
                           peer
@@ -275,15 +273,15 @@ export function TimeSlotPicker({
                   {/* 開始時間入力欄 */}
                   {!isAllDay && (
                     <div>
-                      <label htmlFor={`start-${option.date}`} className="text-xs text-[var(--text-secondary)] block mb-1">
+                      <label htmlFor={`start-${index}`} className="text-xs text-[var(--text-secondary)] block mb-1">
                         開始時間
                       </label>
                       <input
-                        id={`start-${option.date}`}
+                        id={`start-${index}`}
                         type="time"
                         value={option.startTime || ''}
                         onChange={(e) =>
-                          handleTimeChange(option.date, 'startTime', e.target.value)
+                          handleTimeChange(index, 'startTime', e.target.value)
                         }
                         className="
                           w-32 h-10 px-3
