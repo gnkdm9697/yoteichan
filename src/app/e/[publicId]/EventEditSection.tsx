@@ -230,6 +230,7 @@ export function EventEditSection({
 
       {/* 回答一覧 */}
       <ResponseTable
+        eventTitle={event.title}
         dateOptions={event.dateOptions}
         responses={event.responses}
         summary={event.summary}
