@@ -52,9 +52,9 @@ export default function NewEventPage() {
     setDateOptions(updated);
   }, []);
 
-  // 日付の削除
-  const handleRemoveDate = useCallback((date: string) => {
-    setDateOptions((prev) => prev.filter((opt) => opt.date !== date));
+  // 日付の削除（インデックスベース）
+  const handleRemoveDateByIndex = useCallback((index: number) => {
+    setDateOptions((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
   // バリデーション
@@ -225,7 +225,7 @@ export default function NewEventPage() {
             <TimeSlotPicker
               dateOptions={dateOptions}
               onUpdate={handleDateOptionsUpdate}
-              onRemoveDate={handleRemoveDate}
+              onRemoveDateByIndex={handleRemoveDateByIndex}
             />
           </div>
 
