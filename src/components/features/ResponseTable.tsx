@@ -1,4 +1,8 @@
+'use client';
+
+import { useCallback } from 'react';
 import { ResponseStatus } from '@/types';
+import { generateResponsesCsv, downloadCsv } from '@/lib/csv';
 
 interface DateOptionDisplay {
   id: string;
@@ -26,6 +30,7 @@ interface SummaryData {
 }
 
 interface ResponseTableProps {
+  eventTitle: string;
   dateOptions: DateOptionDisplay[];
   responses: ResponseData[];
   summary: Record<string, SummaryData>;
@@ -89,20 +94,39 @@ function findBestDates(summary: Record<string, SummaryData>): string[] {
  * 回答一覧テーブルコンポーネント（転置版）
  * 行=日付、列=参加者 の構造
  */
-export function ResponseTable({ dateOptions, responses, summary, onNameClick }: ResponseTableProps) {
+export function ResponseTable({ eventTitle, dateOptions, responses, summary, onNameClick }: ResponseTableProps) {
   const bestDateIds = findBestDates(summary);
   const totalResponses = responses.length;
+
+  // CSVダウンロード処理
+  const handleDownloadCsv = useCallback(() => {
+    const csv = generateResponsesCsv({
+      eventTitle,
+      dateOptions,
+      responses,
+      summary,
+    });
+    downloadCsv(csv, eventTitle);
+  }, [eventTitle, dateOptions, responses, summary]);
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)] overflow-hidden shadow-[var(--shadow-md)]">
       {/* ヘッダー */}
-      <div className="px-5 py-4 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
+      <div className="px-5 py-4 border-b border-[var(--border)] bg-[var(--bg-secondary)] flex items-center justify-between">
         <h2 className="text-lg font-semibold text-[var(--text)]">
           みんなの回答
           <span className="ml-2 text-base font-normal text-[var(--text-secondary)]">
             ({totalResponses}人)
           </span>
         </h2>
+        {totalResponses > 0 && (
+          <button
+            onClick={handleDownloadCsv}
+            className="px-3 py-1.5 text-sm font-medium text-[var(--primary)] bg-[var(--primary)]/10 hover:bg-[var(--primary)]/20 rounded-lg transition-colors"
+          >
+            CSVダウンロード
+          </button>
+        )}
       </div>
 
       {/* テーブル本体 */}
